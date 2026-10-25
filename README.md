@@ -23,11 +23,11 @@ A retro 2D street-fighting game set in a Kerala town — written in C++ with SDL
 
 | | Player 1 | Player 2 |
 |---|---|---|
-| Move | Z / C | ← / → |
-| Jump | S | ↑ |
-| Crouch | X | ↓ |
-| Punches (light / medium / heavy) | J / K / L | Numpad 4 / 5 / 6 |
-| Kicks (light / medium / heavy) | M / , / . | Numpad 1 / 2 / 3 |
+| Move | A / D | ← / → |
+| Jump | W | ↑ |
+| Crouch | S | ↓ |
+| Punch (heavy) | F (G) | K (L) |
+| Kick (heavy) | V (B) | M (,) |
 | Start / confirm | Enter, Space or any attack button | |
 | Pause | Esc or P | |
 

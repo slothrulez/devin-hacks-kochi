@@ -2,34 +2,34 @@ configuration:
   player_one:
     key_up:
       device: keyboard
-      key: 115
+      key: 119
     key_down:
       device: keyboard
-      key: 120
+      key: 115
     key_left:
       device: keyboard
-      key: 122
+      key: 97
     key_right:
       device: keyboard
-      key: 99
+      key: 100
     key_a:
       device: keyboard
-      key: 106
+      key: 102
     key_b:
       device: keyboard
-      key: 107
+      key: 1073741928
     key_c:
       device: keyboard
-      key: 108
+      key: 103
     key_x:
       device: keyboard
-      key: 109
+      key: 118
     key_y:
       device: keyboard
-      key: 44
+      key: 1073741929
     key_z:
       device: keyboard
-      key: 46
+      key: 98
   player_two:
     key_up:
       device: keyboard
@@ -45,19 +45,19 @@ configuration:
       key: 1073741903
     key_a:
       device: keyboard
-      key: 1073741916
+      key: 107
     key_b:
       device: keyboard
-      key: 1073741917
+      key: 1073741930
     key_c:
       device: keyboard
-      key: 1073741918
+      key: 108
     key_x:
       device: keyboard
-      key: 1073741913
+      key: 109
     key_y:
       device: keyboard
-      key: 1073741914
+      key: 1073741931
     key_z:
       device: keyboard
-      key: 1073741915
+      key: 44
