@@ -1,0 +1,138 @@
+CMAKE      := $(shell command -v cmake)
+DOCKER     := $(shell command -v docker)
+ARCH  	   := $(shell uname -m)
+MAIN       := openfight
+IMAGE_NAME := openfight-compiler
+BUILD_TYPE ?= Release
+
+build: clean
+	${CMAKE} -Bbuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+	${CMAKE} --build build
+
+docker:
+	${DOCKER} build . -t ${IMAGE_NAME}
+
+UNAME := $(shell uname)
+ifeq ($(UNAME), Windows)
+	UID=1000
+	GID=1000
+else
+	UID=`id -u`
+	GID=`id -g`
+endif
+
+docker-ubuntu:
+	docker build -t godot-openfight-ubuntu ./platform/ubuntu
+
+shell-ubuntu: docker-ubuntu
+	docker run -it --rm -v ${CURDIR}:${CURDIR} -w ${CURDIR} godot-openfight-ubuntu ${SHELL_COMMAND}
+
+ubuntu: ubuntu-debug ubuntu-release
+
+ubuntu-debug:
+	$(MAKE) shell-ubuntu SHELL_COMMAND='./platform/ubuntu/build_debug.sh'
+
+ubuntu-release:
+	$(MAKE) shell-ubuntu SHELL_COMMAND='./platform/ubuntu/build_release.sh'
+
+docker-mingw:
+	docker build -t godot-openfight-mingw ./platform/mingw
+
+shell-mingw: docker-mingw
+	docker run -it --rm -v ${CURDIR}:${CURDIR} -w ${CURDIR} godot-openfight-mingw ${SHELL_COMMAND}
+
+mingw: mingw-debug mingw-release
+
+mingw-debug:
+	$(MAKE) shell-mingw SHELL_COMMAND='./platform/mingw/build_debug.sh'
+
+mingw-release:
+	$(MAKE) shell-mingw SHELL_COMMAND='./platform/mingw/build_release.sh'
+
+docker-osxcross:
+	docker build -t godot-csound-osxcross ./platform/osxcross
+
+docker-web:
+	docker build -t godot-openfight-web ./platform/web
+
+shell-web: docker-web
+	docker run -it --rm -v ${CURDIR}:${CURDIR} -w ${CURDIR} godot-openfight-web ${SHELL_COMMAND}
+
+web: web-debug web-release
+
+web-debug:
+	$(MAKE) shell-web SHELL_COMMAND='./platform/web/build_debug.sh'
+
+web-release:
+	$(MAKE) shell-web SHELL_COMMAND='./platform/web/build_release.sh'
+
+
+shell-osxcross: docker-osxcross
+	docker run -it --rm -v ${CURDIR}:${CURDIR} -w ${CURDIR} godot-csound-osxcross ${SHELL_COMMAND}
+
+osxcross: oxcross-debug osxcross-release
+
+osxcross-debug:
+	$(MAKE) shell-osxcross SHELL_COMMAND='./platform/osxcross/build_debug.sh'
+
+osxcross-release:
+	$(MAKE) shell-osxcross SHELL_COMMAND='./platform/osxcross/build_release.sh'
+
+ubuntu-install-deps:
+	sudo apt install -y build-essential libsdl2-dev libsdl2-image-dev libglu1-mesa-dev libglew-dev libyaml-cpp-dev xvfb clang-format
+
+macos-install-deps:
+	brew install sdl2 sdl2_image sdl2_gfx cmake make glew yaml-cpp clang-format
+
+shell:	docker
+	${DOCKER} run -it --rm -v `pwd`:/tmp/workdir --user ${UID}:${GID} -w /tmp/workdir ${IMAGE_NAME} bash
+
+ci-docker:
+	${DOCKER} build -t ${IMAGE_NAME} .
+	${DOCKER} run --rm -v "$(PWD)":/app -w /app ${IMAGE_NAME} sh -c "make clean build validate-log"
+
+xvfb-start:
+	Xvfb $(DISPLAY) -screen 0 1024x768x24 > /dev/null 2>&1 &
+
+xvfb-stop:
+	pkill -9 Xvfb
+
+ci:
+	make clean build validate-log
+
+validate-log:
+	./$(MAIN) > log.txt 2>&1 &
+	sleep 5
+	@if grep -q 'VideoSystem Init OK' log.txt; then \
+		echo "✅ $(MAIN) ran successfully"; \
+	else \
+		echo "❌ $(MAIN) did not produce expected output"; \
+		echo "----- log.txt -----"; \
+		cat log.txt; \
+		exit 1; \
+	fi
+	pkill -9 $(MAIN)
+
+zip:
+	zip -9 -r ${MAIN}-${PLATFORM}-${ARCH}.zip data ${MAIN} ${MAIN}.exe
+
+linux:
+	PLATFORM=linux CXX=g++ make build zip
+
+windows:
+	PLATFORM=windows CXX=i686-w64-mingw32-g++ CC=i686-w64-mingw32-gcc make build zip
+
+mac:
+	PLATFORM=mac CXX=g++ make build zip	
+
+clean:
+	rm -rf ${MAIN} *.exe *.o build cmake-build-* log.txt
+
+check-leak:
+	valgrind --leak-check=full --leak-check=full --show-leak-kinds=all --track-origins=yes ./${MAIN}
+
+format:
+	clang-format -i src/libopenfight/*.cpp src/libopenfight/*.h src/platform/sdl/*.cpp src/platform/sdl/*.h
+
+format-check:
+	clang-format -n src/libopenfight/*.cpp src/libopenfight/*.h src/platform/sdl/*.cpp src/platform/sdl/*.h
