@@ -1,30 +1,63 @@
 # തെരുവ് പോരാളി
 
-This is an open source fighting game written in C++ using SDL
+A retro 2D street-fighting game set in a Kerala town — written in C++ with SDL2, playable natively or in the browser (WebAssembly).
 
-![തെരുവ് പോരാളി](./images/openfight-1.png)
-![തെരുവ് പോരാളി](./images/openfight-2.png)
-![തെരുവ് പോരാളി](./images/openfight-3.png)
-![തെരുവ് പോരാളി](./images/openfight-4.png)
+![Title screen](./images/title.png)
 
-https://github.com/user-attachments/assets/1d26f60d-91d8-4dae-ac71-6a7d8bc14b7e
+## Features
 
-## Requirements
+- **Kerala street stage** — chaya kada, autorickshaw, palms and Malayalam signboards in 16-bit pixel art
+- **Two fighter sets** — P1 in kasavu cream with gold trim, P2 in deep green, 143 animation frames each
+- **Full match flow** — title / attract screen, ROUND 1 → FIGHT!, health bars with damage trail, 99-second round timer, best-of-3 rounds, K.O. / PERFECT! / TIME OVER callouts, winner screen
+- **2 Players or VS CPU** — reactive CPU opponent that approaches, pokes, blocks and jumps
+- **Pause menu** — Esc or P: Resume / Rematch / Quit to title
+- **Sound** — hit, block, whiff, jump and fireball effects, round stingers and a chenda-melam style percussion loop
+- Runs at 60 fps in the browser with the correct 2:1 aspect ratio
 
-* cmake
-* libyaml-cpp-dev
-* libsdl2-dev libsdl2-image-dev libglu1-mesa-dev libglew-dev
+![Fight](./images/fight.png)
+![K.O.](./images/ko.png)
+![Result](./images/result.png)
+![Pause](./images/pause.png)
 
-The project can be executed using the following script:
+## Controls
 
-    make ubuntu-install-deps build
-    ./openfight
+| | Player 1 | Player 2 |
+|---|---|---|
+| Move | Z / C | ← / → |
+| Jump | S | ↑ |
+| Crouch | X | ↓ |
+| Punches (light / medium / heavy) | J / K / L | Numpad 4 / 5 / 6 |
+| Kicks (light / medium / heavy) | M / , / . | Numpad 1 / 2 / 3 |
+| Start / confirm | Enter, Space or any attack button | |
+| Pause | Esc or P | |
 
-## 🤝 Contributing
+Hold back to block. Fireball: ↓ ↘ → + punch.
 
-Pull requests are welcome!  
-If you find a bug or have a feature suggestion, feel free to [open an issue](https://github.com/slothrulez/openfight/issues).
+## Play in the browser
 
-## 🛣️ Roadmap
+Requires the [Emscripten SDK](https://emscripten.org/) and a wasm build of yaml-cpp (see `preview-web.sh` for the expected prefix).
 
-Check out the [ROADMAP](./ROADMAP.md) for planned features and upcoming improvements
+```bash
+./preview-web.sh          # builds build-web/ and serves it on http://localhost:8000
+```
+
+Click the canvas once to give it keyboard focus (browsers also need that click before audio can start).
+
+## Build natively (Linux)
+
+```bash
+sudo apt install cmake g++ libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libyaml-cpp-dev libglm-dev libglu1-mesa-dev
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j"$(nproc)"
+./openfight
+```
+
+## Asset tooling
+
+All generated assets can be rebuilt from `tools/`:
+
+- `tools/generate_sfx.py` — procedural sound effects and music loop (numpy, no samples)
+- `tools/recolor_fighters.py` — builds the `data/p1` / `data/p2` fighter sets from the base sprites
+- `tools/generate_background.py` — AI stage generation (needs `OPENAI_API_KEY`)
+
+Debug hitboxes can be re-enabled with `CollisionBox::debug_draw = true`.

@@ -415,8 +415,10 @@ void GameContext::updateTitle(const FrameInput &input) {
     bool nav_up = input.players[0][KEY_UP] || input.players[1][KEY_UP];
     bool nav_down = input.players[0][KEY_DOWN] || input.players[1][KEY_DOWN];
     if ((nav_up || nav_down) && !nav_latch) {
-        mode_index = 1 - mode_index;
-        audio->playSound("block");
+        int next = nav_down ? min(mode_index + 1, 1) : max(mode_index - 1, 0);
+        if (next != mode_index)
+            audio->playSound("block");
+        mode_index = next;
     }
     nav_latch = nav_up || nav_down;
 

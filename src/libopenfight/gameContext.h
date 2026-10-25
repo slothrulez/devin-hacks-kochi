@@ -35,7 +35,7 @@ private:
     static const int KO_TICKS = 300;
     static const int RESULT_LOCK_TICKS = 90;
     static const int ROUND_SECONDS = 99;
-    static constexpr float MIN_FIGHTER_GAP = 14.0f;
+    static constexpr float MIN_FIGHTER_GAP = 10.0f;
     static const int TICKS_PER_SECOND = 100; // main loop fixed step is 10 ms
 
     PlayerAgent player_one;
